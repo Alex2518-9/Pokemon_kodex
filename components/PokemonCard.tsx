@@ -1,35 +1,38 @@
-import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
-import axios from "axios";
-import { Pokemon } from '../models/pokemonModel';
+import Image from "next/image";
+import React from "react";
+import useFetchPokemon from "../utils/useRequest";
+import { Pok } from "../pages/api/getAllPokes";
+import styles from "../styles/PokemonCard.module.css"
 
-interface allPokemonProps{
-    name: string,
-    img: string
+interface PokemonProps extends Pok {
+  type: {
+    name: string;
+    url: string;
+  };
 }
 
+export default function PokemonCard({ name }: PokemonProps) {
+  const { result, error } = useFetchPokemon(name);
 
-const PokemonCard = ({name, img}: allPokemonProps) => {
+  console.log(result);
 
-  
-
-    useEffect(() => {
-     axios.get("./api/getAllPokes").then((data) => 
-      Pokemon.create({
-        name: data.data.name
-      })
-      ); 
-      
-    
-    }, [])
-    
+  if (error) return <h1>Something went wrong!</h1>;
+  if (!result) return <h1>Loading...</h1>;
 
   return (
-    <div className='pokemonData'>
-        <Image src={img} alt=""/>
-        <h2>{name}</h2>
+    <div className={styles.Card}>
+      <span className={styles.Card_id}>#{result.id}</span>
+      <Image
+        className={styles.Card_image}
+        src={result.sprites.front_default}
+        alt={name}
+        width={450}
+        height={300}
+      />
+      <h1 className={styles.Card_name}>{name}</h1>
+      <span className={styles.Card_details}>
+        {result.types.map((poke: PokemonProps) => poke.type.name).join(", ")}
+      </span>
     </div>
-  )
+  );
 }
-
-export default PokemonCard
