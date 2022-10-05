@@ -1,24 +1,38 @@
-.container{
+.container {
   text-align: center;
   margin: 2rem 0;
   padding: 1rem;
   max-width: 100vw;
-  margin: auto;
+  height: 100vh;
+  margin: 0;
   background: #04204d;
+  overflow-y: scroll;
 }
 
-.container .containerTitle{
+.container .containerTitle {
   text-align: center;
   color: #ffffff;
-  margin-bottom: 2rem;
   font-size: 2rem;
   text-transform: uppercase;
 }
 
-.container div{
+.container div {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-gap: 1.5rem;
   justify-content: center;
   align-items: center;
+}
+
+.btn {
+  width: 100px;
+  cursor: pointer;
+}
+
+.buttonContainer {
+  max-width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
 }
