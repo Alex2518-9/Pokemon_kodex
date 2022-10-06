@@ -1,62 +1,51 @@
-import type { NextPage } from "next";
-import { useState } from "react";
-import PokemonCard from "../components/PokemonCard";
-import styles from "../styles/Home.module.css";
-import FetchPokemons from "../pages/api/getAllPokes";
-import { Pok } from "./api/getAllPokes";
-import Layout from "../components/Layout";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { PokemonDetails, Result } from "../components/interfaces";
+import PokemonCollection from "../components/PokemonCollection";
 
-// called once when app is building
-export async function getStaticProps() {
-  const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=50");
-  const initialPokemon = await response.json();
+const Home = () => {
+  const [allPokemon, setAllPokemon] = useState<PokemonDetails[]>([]);
+  const [nextUrl, setNextUrl] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
-  return {
-    props: {
-      initialPokemon,
-    },
+  useEffect(() => {
+    const getPokemon = async () => {
+      const res = await axios.get(
+        "https://pokeapi.co/api/v2/pokemon/?limit=20&offset=20"
+      );
+      setNextUrl(res.data.next);
+      res.data.results.forEach(async (pokemon: Result) => {
+        const poke = await axios.get(
+          `https://pokeapi.co/api/v2/pokemon/${pokemon.name}`
+        );
+        setAllPokemon((p) => [...p, poke.data]);
+        setLoading(false);
+      });
+    };
+    getPokemon();
+  }, []);
+
+  const nextPage = async () => {
+    setLoading(true);
+    let res = await axios.get(nextUrl);
+    setNextUrl(res.data.next);
+    res.data.results.forEach(async (pokemon: Result) => {
+      const poke = await axios.get(
+        `https://pokeapi.co/api/v2/pokemon/${pokemon.name}`
+      );
+      setAllPokemon((p) => [...p, poke.data]);
+      setLoading(false);
+    });
   };
-}
-
-const Home: NextPage = ({ initialPokemon }: any) => {
-  const [pokemonResult, setPokemonResult] = useState(initialPokemon);
-  const [offset, setOffset] = useState(0);
-
-  const onChangePage = async (url: string, next: boolean) => {
-    const response = await fetch(url);
-    const nextPokemon = await response.json();
-    setOffset(next ? offset + 50 : offset - 50);
-    setPokemonResult(nextPokemon);
-  };
-
   return (
-    // <Layout title="POKE KODEX">
-    <div className={styles.container}>
-      <h1 className={styles.containerTitle}>Poke kodex</h1>
-      <div>
-        {pokemonResult.results.map((pokemon: Pok, index: number) => (
-          <PokemonCard type={pokemon.types} index={index + offset} pokemon={pokemon} key={index} />
-        ))}
+    <div>
+      <div className="container">
+        <div className="allContainer">
+          <PokemonCollection pokemons={allPokemon} />
+        </div>
       </div>
-
-      <div className={styles.buttonContainer}>
-        <button
-          disabled={!pokemonResult.previous}
-          className={styles.btn}
-          onClick={() => onChangePage(pokemonResult.previous, false)}
-        >
-          Prev
-        </button>
-        <button
-          disabled={!pokemonResult.next}
-          className={styles.btn}
-          onClick={() => onChangePage(pokemonResult.next, true)}
-        >
-          Next
-        </button>
-      </div>
+      <button onClick={nextPage}>{loading ? 'Loading...' : 'Load more'}</button>
     </div>
-    //  </Layout>
   );
 };
 
