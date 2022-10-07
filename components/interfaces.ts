@@ -3,18 +3,7 @@ export interface Result {
     url: string;
 }
 
-export interface Abilities {
 
-    abilities: [
-        {
-            ability: {
-                name: string
-            },
-            is_hidden: boolean,
-            slot: number
-        }
-    ]
-}
 
 export interface Sprites {
     front_default: string
@@ -53,10 +42,18 @@ export interface Pokemon {
     weight: number
 }
 
-export interface PokemonDetails{
+export interface PokemonDetails {
     id: number,
     name: string,
-    sprites:{
+    sprites: {
         front_default: string
     }
+}
+
+export interface Abilities extends PokemonDetails {
+    abilities?: {
+        ability: {
+            name: string
+        },
+    }[];
 }
